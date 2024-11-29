@@ -1,7 +1,10 @@
 if (NOT ESP_PLATFORM) # Only configure tests if we are building in a computer.
 
     project(LinuxOSShim_GoogleTests)
-    add_subdirectory(googletest)
+    if (NOT TARGET gtest)
+        add_subdirectory(googletest)
+    endif ()
+
     include_directories("${gtest_SOURCE_DIR}/include" ".")
 
     file(GLOB_RECURSE TEST_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
