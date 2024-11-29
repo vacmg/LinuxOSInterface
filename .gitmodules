@@ -1,0 +1,3 @@
+[submodule "deps/OSShim"]
+	path = deps/OSShim
+	url = git@github.com:vacmg/PMW-OSShim.git
