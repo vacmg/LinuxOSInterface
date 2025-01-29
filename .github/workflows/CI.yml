@@ -1,6 +1,6 @@
 # https://cpp-linter.github.io/cpp-linter-action/
 
-name: DoCANCppLib CI
+name: LinuxOSShim CI
 
 on:
     push:
