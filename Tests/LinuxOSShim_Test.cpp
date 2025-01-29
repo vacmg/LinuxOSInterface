@@ -32,7 +32,7 @@ TEST(LinuxOSShim, mutexWait)
 {
     OSShim_Mutex* mutex = linuxOSShim.osCreateMutex();
     EXPECT_TRUE(mutex != nullptr);
-    EXPECT_TRUE(mutex->wait(1000));
+    EXPECT_TRUE(mutex->wait(10));
 }
 
 TEST(LinuxOSShim, mutexSignal)
@@ -147,4 +147,103 @@ TEST(LinuxOSShim, osMallocMultipleAlloc)
     linuxOSShim.osFree(ptr1);
     linuxOSShim.osFree(ptr2);
     linuxOSShim.osFree(ptr3);
+}
+
+TEST(LinuxOSShim, binarySemaphoreInit)
+{
+    OSShim_BinarySemaphore* semaphore = linuxOSShim.osCreateBinarySemaphore();
+    EXPECT_TRUE(semaphore != nullptr);
+    EXPECT_FALSE(semaphore->wait(10));
+}
+
+TEST(LinuxOSShim, binarySemaphoreWaitSignal)
+{
+    OSShim_BinarySemaphore* semaphore = linuxOSShim.osCreateBinarySemaphore();
+    EXPECT_TRUE(semaphore != nullptr);
+    semaphore->signal();
+    EXPECT_TRUE(semaphore->wait(10));
+}
+
+TEST(LinuxOSShim, binarySemaphoreWaitSignalWait)
+{
+    OSShim_BinarySemaphore* semaphore = linuxOSShim.osCreateBinarySemaphore();
+    EXPECT_TRUE(semaphore != nullptr);
+    semaphore->signal();
+    EXPECT_TRUE(semaphore->wait(10));
+    EXPECT_FALSE(semaphore->wait(10));
+}
+
+TEST(LinuxOSShim, semaphoreTestNormal)
+{
+    OSShim_BinarySemaphore* semaphore = linuxOSShim.osCreateBinarySemaphore();
+    ASSERT_NE(semaphore, nullptr);
+    semaphore->signal();
+
+    // Lock the semaphore
+    ASSERT_TRUE(semaphore->wait(100000));
+    // Flag to check if the second thread was able to lock the semaphore.
+    volatile bool secondThreadLocked = false;
+
+    // Create a second thread that tries to lock the semaphore
+    std::thread t(
+            [&]
+            {
+                EXPECT_TRUE(semaphore->wait(100000));
+                secondThreadLocked = true;
+                semaphore->signal();
+            });
+
+    // Sleep for a short time to ensure the second thread attempts to lock the semaphore
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+
+    // The second thread should not have been able to lock the semaphore yet
+    EXPECT_FALSE(secondThreadLocked);
+
+    // Unlock the semaphore
+    semaphore->signal();
+
+    // Wait for the second thread to finish
+    t.join();
+
+    // Now the second thread should have been able to lock the semaphore
+    EXPECT_TRUE(secondThreadLocked);
+}
+
+TEST(LinuxOSShim, semaphoreTestTimeout)
+{
+    OSShim_Mutex* semaphore = linuxOSShim.osCreateMutex();
+    ASSERT_NE(semaphore, nullptr);
+    semaphore->signal();
+
+    // Lock the semaphore
+    ASSERT_TRUE(semaphore->wait(100000));
+    // Flag to check if the second thread was able to lock the semaphore
+    volatile bool secondThreadLocked = false;
+
+    // Create a second thread that tries to lock the semaphore
+    std::thread t(
+            [&]
+            {
+                auto res = semaphore->wait(50);
+                EXPECT_FALSE(res);
+                if (res)
+                {
+                    secondThreadLocked = true;
+                    semaphore->signal();
+                }
+            });
+
+    // Sleep for a short time to ensure the second thread attempts to lock the semaphore
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+    // The second thread should not have been able to lock the semaphore yet
+    EXPECT_FALSE(secondThreadLocked);
+
+    // Unlock the semaphore
+    semaphore->signal();
+
+    // Wait for the second thread to finish
+    t.join();
+
+    EXPECT_FALSE(secondThreadLocked);
 }

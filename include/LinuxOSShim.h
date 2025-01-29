@@ -9,6 +9,7 @@ public:
     void osSleep(uint32_t ms) override;
     uint32_t osMillis() override;
     OSShim_Mutex* osCreateMutex() override;
+    OSShim_BinarySemaphore* osCreateBinarySemaphore() override;
 
     void* osMalloc(uint32_t size) override;
     void osFree(void* ptr) override;
