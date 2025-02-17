@@ -7,6 +7,9 @@ concurrency:
     cancel-in-progress: true
 
 on:
+    push:
+        branches-ignore:
+            - '*Test*'
     pull_request:
         branches-ignore:
             - '*Test*'
