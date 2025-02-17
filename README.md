@@ -1,3 +1,3 @@
-# PMW-LinuxOSShim [![LinuxOSShim CI](https://github.com/vacmg/PMW-LinuxOSShim/actions/workflows/CI.yml/badge.svg)](https://github.com/vacmg/PMW-LinuxOSShim/actions/workflows/CI.yml)
+# PMW-LinuxOSInterface #CI_Status_badge_placeholder#
 
-A Linux implementation of PMW-OSShim to use in unit tests
+A Linux implementation of [OSInterface](https://github.com/vacmg/OSInterface) to use in unit tests

@@ -1,4 +1,4 @@
-#include "LinuxOSShim.h"
+#include "LinuxOSInterface.h"
 #include <cstdlib>
 #include <ctime>
 #include <mutex>
@@ -22,7 +22,7 @@ timespec msToTimespec(uint32_t ms)
     return ts;
 }
 
-class linuxMutex final : public OSShim_Mutex
+class linuxMutex final : public OSInterface_Mutex
 {
 public:
     linuxMutex() { pthread_mutex_init(&mutex, nullptr); }
@@ -38,7 +38,7 @@ private:
     pthread_mutex_t mutex{};
 };
 
-class linuxBinarySemaphore final : public OSShim_BinarySemaphore
+class linuxBinarySemaphore final : public OSInterface_BinarySemaphore
 {
 public:
     linuxBinarySemaphore() { sem_init(&semaphore, 0, 0); }
@@ -54,7 +54,7 @@ private:
     sem_t semaphore{};
 };
 
-uint32_t LinuxOSShim::osMillis()
+uint32_t LinuxOSInterface::osMillis()
 {
     timespec ts{};
     clock_gettime(CLOCK_REALTIME, &ts);
@@ -69,7 +69,7 @@ void linuxSleep(uint32_t ms)
         ;
 }
 #else
-void LinuxOSShim::osSleep(uint32_t ms)
+void LinuxOSInterface::osSleep(uint32_t ms)
 {
     timespec ts{};
     ts.tv_sec = ms / 1000;
@@ -78,10 +78,10 @@ void LinuxOSShim::osSleep(uint32_t ms)
 }
 #endif
 
-OSShim_Mutex* LinuxOSShim::osCreateMutex() { return new linuxMutex(); }
+OSInterface_Mutex* LinuxOSInterface::osCreateMutex() { return new linuxMutex(); }
 
-OSShim_BinarySemaphore* LinuxOSShim::osCreateBinarySemaphore() { return new linuxBinarySemaphore(); }
+OSInterface_BinarySemaphore* LinuxOSInterface::osCreateBinarySemaphore() { return new linuxBinarySemaphore(); }
 
-void* LinuxOSShim::osMalloc(uint32_t size) { return malloc(size); }
+void* LinuxOSInterface::osMalloc(uint32_t size) { return malloc(size); }
 
-void LinuxOSShim::osFree(void* ptr) { free(ptr); }
+void LinuxOSInterface::osFree(void* ptr) { free(ptr); }

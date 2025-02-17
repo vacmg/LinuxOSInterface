@@ -1,9 +1,9 @@
-#include "LinuxOSShim.h"
+#include "LinuxOSInterface.h"
 #include "gtest/gtest.h"
 
-static LinuxOSShim linuxOSShim;
+static LinuxOSInterface linuxOSInterface;
 
-TEST(LinuxOSShim, timeTest)
+TEST(LinuxOSInterface, timeTest)
 {
     uint32_t timeToSleep = 10;
     uint32_t repeat = 10;
@@ -11,9 +11,9 @@ TEST(LinuxOSShim, timeTest)
 
     for (uint32_t i = 0; i < repeat; i++)
     {
-        uint32_t millis = linuxOSShim.osMillis();
-        linuxOSShim.osSleep(timeToSleep);
-        uint32_t millis2 = linuxOSShim.osMillis();
+        uint32_t millis = linuxOSInterface.osMillis();
+        linuxOSInterface.osSleep(timeToSleep);
+        uint32_t millis2 = linuxOSInterface.osMillis();
 
         EXPECT_GE(millis2, millis + timeToSleep);
         if (millis2 >= millis + timeToSleep + 100)
@@ -28,23 +28,25 @@ TEST(LinuxOSShim, timeTest)
     }
 }
 
-TEST(LinuxOSShim, mutexWait)
+TEST(LinuxOSInterface, mutexWait)
 {
-    OSShim_Mutex* mutex = linuxOSShim.osCreateMutex();
+    OSInterface_Mutex* mutex = linuxOSInterface.osCreateMutex();
     EXPECT_TRUE(mutex != nullptr);
     EXPECT_TRUE(mutex->wait(10));
+    delete mutex;
 }
 
-TEST(LinuxOSShim, mutexSignal)
+TEST(LinuxOSInterface, mutexSignal)
 {
-    OSShim_Mutex* mutex = linuxOSShim.osCreateMutex();
+    OSInterface_Mutex* mutex = linuxOSInterface.osCreateMutex();
     EXPECT_TRUE(mutex != nullptr);
     mutex->signal();
+    delete mutex;
 }
 
-TEST(LinuxOSShim, mutexTestNormal)
+TEST(LinuxOSInterface, mutexTestNormal)
 {
-    OSShim_Mutex* mutex = linuxOSShim.osCreateMutex();
+    OSInterface_Mutex* mutex = linuxOSInterface.osCreateMutex();
     ASSERT_NE(mutex, nullptr);
 
     // Lock the mutex
@@ -75,11 +77,12 @@ TEST(LinuxOSShim, mutexTestNormal)
 
     // Now the second thread should have been able to lock the mutex
     EXPECT_TRUE(secondThreadLocked);
+    delete mutex;
 }
 
-TEST(LinuxOSShim, mutexTestTimeout)
+TEST(LinuxOSInterface, mutexTestTimeout)
 {
-    OSShim_Mutex* mutex = linuxOSShim.osCreateMutex();
+    OSInterface_Mutex* mutex = linuxOSInterface.osCreateMutex();
     ASSERT_NE(mutex, nullptr);
 
     // Lock the mutex
@@ -113,69 +116,73 @@ TEST(LinuxOSShim, mutexTestTimeout)
     t.join();
 
     EXPECT_FALSE(secondThreadLocked);
+    delete mutex;
 }
 
-TEST(LinuxOSShim, osMallocSimpleAlloc)
+TEST(LinuxOSInterface, osMallocSimpleAlloc)
 {
-    void* ptr = linuxOSShim.osMalloc(100);
+    void* ptr = linuxOSInterface.osMalloc(100);
     ASSERT_NE(ptr, nullptr);
-    linuxOSShim.osFree(ptr);
+    linuxOSInterface.osFree(ptr);
 }
 
-TEST(LinuxOSShim, osMallocZeroAlloc)
+TEST(LinuxOSInterface, osMallocZeroAlloc)
 {
-    void* ptr = linuxOSShim.osMalloc(0);
+    void* ptr = linuxOSInterface.osMalloc(0);
     ASSERT_NE(ptr, nullptr);
-    linuxOSShim.osFree(ptr);
+    linuxOSInterface.osFree(ptr);
 }
 
-TEST(LinuxOSShim, osMallocLargeAlloc)
+TEST(LinuxOSInterface, osMallocLargeAlloc)
 {
-    void* ptr = linuxOSShim.osMalloc(1024 * 1024 * 6);
+    void* ptr = linuxOSInterface.osMalloc(1024 * 1024 * 6);
     ASSERT_NE(ptr, nullptr);
-    linuxOSShim.osFree(ptr);
+    linuxOSInterface.osFree(ptr);
 }
 
-TEST(LinuxOSShim, osMallocMultipleAlloc)
+TEST(LinuxOSInterface, osMallocMultipleAlloc)
 {
-    void* ptr1 = linuxOSShim.osMalloc(100);
-    void* ptr2 = linuxOSShim.osMalloc(100);
-    void* ptr3 = linuxOSShim.osMalloc(100);
+    void* ptr1 = linuxOSInterface.osMalloc(100);
+    void* ptr2 = linuxOSInterface.osMalloc(100);
+    void* ptr3 = linuxOSInterface.osMalloc(100);
     ASSERT_NE(ptr1, nullptr);
     ASSERT_NE(ptr2, nullptr);
     ASSERT_NE(ptr3, nullptr);
-    linuxOSShim.osFree(ptr1);
-    linuxOSShim.osFree(ptr2);
-    linuxOSShim.osFree(ptr3);
+    linuxOSInterface.osFree(ptr1);
+    linuxOSInterface.osFree(ptr2);
+    linuxOSInterface.osFree(ptr3);
 }
 
-TEST(LinuxOSShim, binarySemaphoreInit)
+TEST(LinuxOSInterface, binarySemaphoreInit)
 {
-    OSShim_BinarySemaphore* semaphore = linuxOSShim.osCreateBinarySemaphore();
+    OSInterface_BinarySemaphore* semaphore = linuxOSInterface.osCreateBinarySemaphore();
     EXPECT_TRUE(semaphore != nullptr);
     EXPECT_FALSE(semaphore->wait(10));
+    delete semaphore;
 }
 
-TEST(LinuxOSShim, binarySemaphoreWaitSignal)
+TEST(LinuxOSInterface, binarySemaphoreWaitSignal)
 {
-    OSShim_BinarySemaphore* semaphore = linuxOSShim.osCreateBinarySemaphore();
+    OSInterface_BinarySemaphore* semaphore = linuxOSInterface.osCreateBinarySemaphore();
     EXPECT_TRUE(semaphore != nullptr);
     semaphore->signal();
     EXPECT_TRUE(semaphore->wait(10));
+    delete semaphore;
 }
 
-TEST(LinuxOSShim, binarySemaphoreWaitSignalWait)
+TEST(LinuxOSInterface, binarySemaphoreWaitSignalWait)
 {
-    OSShim_BinarySemaphore* semaphore = linuxOSShim.osCreateBinarySemaphore();
+    OSInterface_BinarySemaphore* semaphore = linuxOSInterface.osCreateBinarySemaphore();
     EXPECT_TRUE(semaphore != nullptr);
     semaphore->signal();
     EXPECT_TRUE(semaphore->wait(10));
     EXPECT_FALSE(semaphore->wait(10));
+    delete semaphore;
 }
 
-TEST(LinuxOSShim, semaphoreTestNormal)
+TEST(LinuxOSInterface, semaphoreTestNormal)
 {
-    OSShim_BinarySemaphore* semaphore = linuxOSShim.osCreateBinarySemaphore();
+    OSInterface_BinarySemaphore* semaphore = linuxOSInterface.osCreateBinarySemaphore();
     ASSERT_NE(semaphore, nullptr);
     semaphore->signal();
 
@@ -207,11 +214,12 @@ TEST(LinuxOSShim, semaphoreTestNormal)
 
     // Now the second thread should have been able to lock the semaphore
     EXPECT_TRUE(secondThreadLocked);
+    delete semaphore;
 }
 
-TEST(LinuxOSShim, semaphoreTestTimeout)
+TEST(LinuxOSInterface, semaphoreTestTimeout)
 {
-    OSShim_Mutex* semaphore = linuxOSShim.osCreateMutex();
+    OSInterface_Mutex* semaphore = linuxOSInterface.osCreateMutex();
     ASSERT_NE(semaphore, nullptr);
     semaphore->signal();
 
@@ -246,4 +254,5 @@ TEST(LinuxOSShim, semaphoreTestTimeout)
     t.join();
 
     EXPECT_FALSE(secondThreadLocked);
+    delete semaphore;
 }

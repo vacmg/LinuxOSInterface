@@ -1,15 +1,15 @@
 #ifndef DOCANCPPLIBTEST_OSLINUXSHIM_H
 #define DOCANCPPLIBTEST_OSLINUXSHIM_H
 
-#include "OSShim.h"
+#include "OSInterface.h"
 
-class LinuxOSShim : public OSShim
+class LinuxOSInterface : public OSInterface
 {
 public:
     void osSleep(uint32_t ms) override;
     uint32_t osMillis() override;
-    OSShim_Mutex* osCreateMutex() override;
-    OSShim_BinarySemaphore* osCreateBinarySemaphore() override;
+    OSInterface_Mutex* osCreateMutex() override;
+    OSInterface_BinarySemaphore* osCreateBinarySemaphore() override;
 
     void* osMalloc(uint32_t size) override;
     void osFree(void* ptr) override;
