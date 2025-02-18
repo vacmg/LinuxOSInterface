@@ -1,5 +1,5 @@
-#ifndef DOCANCPPLIBTEST_OSLINUXSHIM_H
-#define DOCANCPPLIBTEST_OSLINUXSHIM_H
+#ifndef OSLINUXINTERFACE_H
+#define OSLINUXINTERFACE_H
 
 #include "OSInterface.h"
 
@@ -15,4 +15,4 @@ public:
     void osFree(void* ptr) override;
 };
 
-#endif // DOCANCPPLIBTEST_OSLINUXSHIM_H
+#endif // OSLINUXINTERFACE_H
