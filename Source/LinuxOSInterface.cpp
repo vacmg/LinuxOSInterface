@@ -25,9 +25,21 @@ timespec msToTimespec(uint32_t ms)
 class linuxMutex final : public OSInterface_Mutex
 {
 public:
-    linuxMutex() { pthread_mutex_init(&mutex, nullptr); }
-    ~linuxMutex() override { pthread_mutex_destroy(&mutex); }
-    void signal() override { pthread_mutex_unlock(&mutex); }
+    linuxMutex()
+    {
+        pthread_mutex_init(&mutex, nullptr);
+    }
+
+    ~linuxMutex() override
+    {
+        pthread_mutex_destroy(&mutex);
+    }
+
+    void signal() override
+    {
+        pthread_mutex_unlock(&mutex);
+    }
+
     bool wait(uint32_t max_time_to_wait_ms) override
     {
         const timespec ts = msToTimespec(max_time_to_wait_ms);
@@ -41,9 +53,21 @@ private:
 class linuxBinarySemaphore final : public OSInterface_BinarySemaphore
 {
 public:
-    linuxBinarySemaphore() { sem_init(&semaphore, 0, 0); }
-    ~linuxBinarySemaphore() override { sem_destroy(&semaphore); }
-    void signal() override { sem_post(&semaphore); }
+    linuxBinarySemaphore()
+    {
+        sem_init(&semaphore, 0, 0);
+    }
+
+    ~linuxBinarySemaphore() override
+    {
+        sem_destroy(&semaphore);
+    }
+
+    void signal() override
+    {
+        sem_post(&semaphore);
+    }
+
     bool wait(uint32_t max_time_to_wait_ms) override
     {
         const timespec ts = msToTimespec(max_time_to_wait_ms);
@@ -72,16 +96,28 @@ void linuxSleep(uint32_t ms)
 void LinuxOSInterface::osSleep(uint32_t ms)
 {
     timespec ts{};
-    ts.tv_sec = ms / 1000;
+    ts.tv_sec  = ms / 1000;
     ts.tv_nsec = (ms % 1000) * 1000000;
     nanosleep(&ts, nullptr);
 }
 #endif
 
-OSInterface_Mutex* LinuxOSInterface::osCreateMutex() { return new linuxMutex(); }
+OSInterface_Mutex* LinuxOSInterface::osCreateMutex()
+{
+    return new linuxMutex();
+}
 
-OSInterface_BinarySemaphore* LinuxOSInterface::osCreateBinarySemaphore() { return new linuxBinarySemaphore(); }
+OSInterface_BinarySemaphore* LinuxOSInterface::osCreateBinarySemaphore()
+{
+    return new linuxBinarySemaphore();
+}
 
-void* LinuxOSInterface::osMalloc(uint32_t size) { return malloc(size); }
+void* LinuxOSInterface::osMalloc(uint32_t size)
+{
+    return malloc(size);
+}
 
-void LinuxOSInterface::osFree(void* ptr) { free(ptr); }
+void LinuxOSInterface::osFree(void* ptr)
+{
+    free(ptr);
+}
