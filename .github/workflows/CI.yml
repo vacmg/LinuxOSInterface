@@ -8,8 +8,9 @@ concurrency:
 
 on:
     push:
-        branches-ignore:
-            - '*Test*'
+        branches:
+            - 'main'
+            - 'develop'
     pull_request:
         branches-ignore:
             - '*Test*'
