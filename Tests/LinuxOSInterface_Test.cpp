@@ -6,8 +6,8 @@ static LinuxOSInterface linuxOSInterface;
 TEST(LinuxOSInterface, timeTest)
 {
     uint32_t timeToSleep = 10;
-    uint32_t repeat = 10;
-    bool flag = false;
+    uint32_t repeat      = 10;
+    bool     flag        = false;
 
     for (uint32_t i = 0; i < repeat; i++)
     {
@@ -26,97 +26,6 @@ TEST(LinuxOSInterface, timeTest)
     {
         FAIL() << "Sleep slept for too long";
     }
-}
-
-TEST(LinuxOSInterface, mutexWait)
-{
-    OSInterface_Mutex* mutex = linuxOSInterface.osCreateMutex();
-    EXPECT_TRUE(mutex != nullptr);
-    EXPECT_TRUE(mutex->wait(10));
-    delete mutex;
-}
-
-TEST(LinuxOSInterface, mutexSignal)
-{
-    OSInterface_Mutex* mutex = linuxOSInterface.osCreateMutex();
-    EXPECT_TRUE(mutex != nullptr);
-    mutex->signal();
-    delete mutex;
-}
-
-TEST(LinuxOSInterface, mutexTestNormal)
-{
-    OSInterface_Mutex* mutex = linuxOSInterface.osCreateMutex();
-    ASSERT_NE(mutex, nullptr);
-
-    // Lock the mutex
-    ASSERT_TRUE(mutex->wait(100000));
-    // Flag to check if the second thread was able to lock the mutex
-    volatile bool secondThreadLocked = false;
-
-    // Create a second thread that tries to lock the mutex
-    std::thread t(
-            [&]
-            {
-                EXPECT_TRUE(mutex->wait(100000));
-                secondThreadLocked = true;
-                mutex->signal();
-            });
-
-    // Sleep for a short time to ensure the second thread attempts to lock the mutex
-    std::this_thread::sleep_for(std::chrono::milliseconds(50));
-
-    // The second thread should not have been able to lock the mutex yet
-    EXPECT_FALSE(secondThreadLocked);
-
-    // Unlock the mutex
-    mutex->signal();
-
-    // Wait for the second thread to finish
-    t.join();
-
-    // Now the second thread should have been able to lock the mutex
-    EXPECT_TRUE(secondThreadLocked);
-    delete mutex;
-}
-
-TEST(LinuxOSInterface, mutexTestTimeout)
-{
-    OSInterface_Mutex* mutex = linuxOSInterface.osCreateMutex();
-    ASSERT_NE(mutex, nullptr);
-
-    // Lock the mutex
-    ASSERT_TRUE(mutex->wait(100000));
-    // Flag to check if the second thread was able to lock the mutex
-    volatile bool secondThreadLocked = false;
-
-    // Create a second thread that tries to lock the mutex
-    std::thread t(
-            [&]
-            {
-                auto res = mutex->wait(50);
-                EXPECT_FALSE(res);
-                if (res)
-                {
-                    secondThreadLocked = true;
-                    mutex->signal();
-                }
-            });
-
-    // Sleep for a short time to ensure the second thread attempts to lock the mutex
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
-    // The second thread should not have been able to lock the mutex yet
-    EXPECT_FALSE(secondThreadLocked);
-
-    // Unlock the mutex
-    mutex->signal();
-
-    // Wait for the second thread to finish
-    t.join();
-
-    EXPECT_FALSE(secondThreadLocked);
-    delete mutex;
 }
 
 TEST(LinuxOSInterface, osMallocSimpleAlloc)
@@ -151,6 +60,97 @@ TEST(LinuxOSInterface, osMallocMultipleAlloc)
     linuxOSInterface.osFree(ptr1);
     linuxOSInterface.osFree(ptr2);
     linuxOSInterface.osFree(ptr3);
+}
+
+TEST(LinuxOSInterface, mutexWait)
+{
+    OSInterface_Mutex* mutex = linuxOSInterface.osCreateMutex();
+    EXPECT_TRUE(mutex != nullptr);
+    EXPECT_TRUE(mutex->wait(10));
+    delete mutex;
+}
+
+TEST(LinuxOSInterface, mutexSignal)
+{
+    OSInterface_Mutex* mutex = linuxOSInterface.osCreateMutex();
+    EXPECT_TRUE(mutex != nullptr);
+    mutex->signal();
+    delete mutex;
+}
+
+TEST(LinuxOSInterface, mutexTestNormal)
+{
+    OSInterface_Mutex* mutex = linuxOSInterface.osCreateMutex();
+    ASSERT_NE(mutex, nullptr);
+
+    // Lock the mutex
+    ASSERT_TRUE(mutex->wait(100000));
+    // Flag to check if the second thread was able to lock the mutex
+    volatile bool secondThreadLocked = false;
+
+    // Create a second thread that tries to lock the mutex
+    std::thread t(
+        [&]
+        {
+            EXPECT_TRUE(mutex->wait(100000));
+            secondThreadLocked = true;
+            mutex->signal();
+        });
+
+    // Sleep for a short time to ensure the second thread attempts to lock the mutex
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+
+    // The second thread should not have been able to lock the mutex yet
+    EXPECT_FALSE(secondThreadLocked);
+
+    // Unlock the mutex
+    mutex->signal();
+
+    // Wait for the second thread to finish
+    t.join();
+
+    // Now the second thread should have been able to lock the mutex
+    EXPECT_TRUE(secondThreadLocked);
+    delete mutex;
+}
+
+TEST(LinuxOSInterface, mutexTestTimeout)
+{
+    OSInterface_Mutex* mutex = linuxOSInterface.osCreateMutex();
+    ASSERT_NE(mutex, nullptr);
+
+    // Lock the mutex
+    ASSERT_TRUE(mutex->wait(100000));
+    // Flag to check if the second thread was able to lock the mutex
+    volatile bool secondThreadLocked = false;
+
+    // Create a second thread that tries to lock the mutex
+    std::thread t(
+        [&]
+        {
+            auto res = mutex->wait(50);
+            EXPECT_FALSE(res);
+            if (res)
+            {
+                secondThreadLocked = true;
+                mutex->signal();
+            }
+        });
+
+    // Sleep for a short time to ensure the second thread attempts to lock the mutex
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+    // The second thread should not have been able to lock the mutex yet
+    EXPECT_FALSE(secondThreadLocked);
+
+    // Unlock the mutex
+    mutex->signal();
+
+    // Wait for the second thread to finish
+    t.join();
+
+    EXPECT_FALSE(secondThreadLocked);
+    delete mutex;
 }
 
 TEST(LinuxOSInterface, binarySemaphoreInit)
@@ -193,12 +193,12 @@ TEST(LinuxOSInterface, semaphoreTestNormal)
 
     // Create a second thread that tries to lock the semaphore
     std::thread t(
-            [&]
-            {
-                EXPECT_TRUE(semaphore->wait(100000));
-                secondThreadLocked = true;
-                semaphore->signal();
-            });
+        [&]
+        {
+            EXPECT_TRUE(semaphore->wait(100000));
+            secondThreadLocked = true;
+            semaphore->signal();
+        });
 
     // Sleep for a short time to ensure the second thread attempts to lock the semaphore
     std::this_thread::sleep_for(std::chrono::milliseconds(50));
@@ -230,16 +230,16 @@ TEST(LinuxOSInterface, semaphoreTestTimeout)
 
     // Create a second thread that tries to lock the semaphore
     std::thread t(
-            [&]
+        [&]
+        {
+            auto res = semaphore->wait(50);
+            EXPECT_FALSE(res);
+            if (res)
             {
-                auto res = semaphore->wait(50);
-                EXPECT_FALSE(res);
-                if (res)
-                {
-                    secondThreadLocked = true;
-                    semaphore->signal();
-                }
-            });
+                secondThreadLocked = true;
+                semaphore->signal();
+            }
+        });
 
     // Sleep for a short time to ensure the second thread attempts to lock the semaphore
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
