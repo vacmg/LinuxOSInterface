@@ -93,7 +93,7 @@ void linuxSleep(uint32_t ms)
         ;
 }
 #else
-void LinuxOSInterface::osSleep(uint32_t ms)
+void LinuxOSInterface::osSleep(const uint32_t ms)
 {
     timespec ts{};
     ts.tv_sec  = ms / 1000;
@@ -112,9 +112,9 @@ OSInterface_BinarySemaphore* LinuxOSInterface::osCreateBinarySemaphore()
     return new linuxBinarySemaphore();
 }
 
-void* LinuxOSInterface::osMalloc(uint32_t size)
+void* LinuxOSInterface::osMalloc(const uint32_t size)
 {
-    return malloc(size);
+    return size == 0 ? nullptr : malloc(size);
 }
 
 void LinuxOSInterface::osFree(void* ptr)

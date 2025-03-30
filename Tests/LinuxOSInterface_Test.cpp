@@ -38,7 +38,7 @@ TEST(LinuxOSInterface, osMallocSimpleAlloc)
 TEST(LinuxOSInterface, osMallocZeroAlloc)
 {
     void* ptr = linuxOSInterface.osMalloc(0);
-    ASSERT_NE(ptr, nullptr);
+    ASSERT_EQ(ptr, nullptr);
     linuxOSInterface.osFree(ptr);
 }
 
