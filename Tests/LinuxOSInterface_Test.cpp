@@ -84,7 +84,7 @@ TEST(LinuxOSInterface, mutexTestNormal)
     ASSERT_NE(mutex, nullptr);
 
     // Lock the mutex
-    ASSERT_TRUE(mutex->wait(100000));
+    ASSERT_TRUE(mutex->wait(10000));
     // Flag to check if the second thread was able to lock the mutex
     volatile bool secondThreadLocked = false;
 
@@ -92,7 +92,7 @@ TEST(LinuxOSInterface, mutexTestNormal)
     std::thread t(
         [&]
         {
-            EXPECT_TRUE(mutex->wait(100000));
+            EXPECT_TRUE(mutex->wait(10000));
             secondThreadLocked = true;
             mutex->signal();
         });
@@ -120,7 +120,7 @@ TEST(LinuxOSInterface, mutexTestTimeout)
     ASSERT_NE(mutex, nullptr);
 
     // Lock the mutex
-    ASSERT_TRUE(mutex->wait(100000));
+    ASSERT_TRUE(mutex->wait(10000));
     // Flag to check if the second thread was able to lock the mutex
     volatile bool secondThreadLocked = false;
 
@@ -187,7 +187,7 @@ TEST(LinuxOSInterface, semaphoreTestNormal)
     semaphore->signal();
 
     // Lock the semaphore
-    ASSERT_TRUE(semaphore->wait(100000));
+    ASSERT_TRUE(semaphore->wait(10000));
     // Flag to check if the second thread was able to lock the semaphore.
     volatile bool secondThreadLocked = false;
 
@@ -195,7 +195,7 @@ TEST(LinuxOSInterface, semaphoreTestNormal)
     std::thread t(
         [&]
         {
-            EXPECT_TRUE(semaphore->wait(100000));
+            EXPECT_TRUE(semaphore->wait(10000));
             secondThreadLocked = true;
             semaphore->signal();
         });
@@ -224,7 +224,7 @@ TEST(LinuxOSInterface, semaphoreTestTimeout)
     semaphore->signal();
 
     // Lock the semaphore
-    ASSERT_TRUE(semaphore->wait(100000));
+    ASSERT_TRUE(semaphore->wait(10000));
     // Flag to check if the second thread was able to lock the semaphore
     volatile bool secondThreadLocked = false;
 
