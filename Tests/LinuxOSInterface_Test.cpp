@@ -211,7 +211,7 @@ TEST(LinuxOSInterface, semaphoreTestNormal)
 
 TEST(LinuxOSInterface, semaphoreTestTimeout)
 {
-    OSInterface_Mutex* semaphore = linuxOSInterface.osCreateMutex();
+    OSInterface_BinarySemaphore* semaphore = linuxOSInterface.osCreateBinarySemaphore();
     ASSERT_NE(semaphore, nullptr);
     semaphore->signal();
 
