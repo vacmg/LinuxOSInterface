@@ -70,14 +70,6 @@ TEST(LinuxOSInterface, mutexWait)
     delete mutex;
 }
 
-TEST(LinuxOSInterface, mutexSignal)
-{
-    OSInterface_Mutex* mutex = linuxOSInterface.osCreateMutex();
-    EXPECT_TRUE(mutex != nullptr);
-    mutex->signal();
-    delete mutex;
-}
-
 TEST(LinuxOSInterface, mutexTestNormal)
 {
     OSInterface_Mutex* mutex = linuxOSInterface.osCreateMutex();

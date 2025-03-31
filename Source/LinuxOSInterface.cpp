@@ -27,7 +27,10 @@ class linuxMutex final : public OSInterface_Mutex
 public:
     linuxMutex()
     {
-        pthread_mutex_init(&mutex, nullptr);
+        pthread_mutexattr_t attr;
+        pthread_mutexattr_init(&attr);
+        pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_ERRORCHECK);
+        pthread_mutex_init(&mutex, &attr);
     }
 
     ~linuxMutex() override
@@ -37,7 +40,10 @@ public:
 
     void signal() override
     {
-        pthread_mutex_unlock(&mutex);
+        if (pthread_mutex_unlock(&mutex) != 0)
+        {
+            exit(EXIT_FAILURE);
+        }
     }
 
     bool wait(uint32_t max_time_to_wait_ms) override
