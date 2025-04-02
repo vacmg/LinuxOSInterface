@@ -29,6 +29,9 @@ jobs:
                     git config --global --add "url.https://$GH_USER_NAME:$GH_PAT@github.com.insteadOf" git@github.com
                     git config --global --add "url.https://$GH_USER_NAME:$GH_PAT@github.com.insteadOf" https://github.com
 
+            -   name: Cat GitHub credentials
+                run: cat ~/.gitconfig
+
             -   name: "Checkout repository"
                 uses: actions/checkout@v4
 
