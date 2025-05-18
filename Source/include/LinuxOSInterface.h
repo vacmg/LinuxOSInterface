@@ -13,6 +13,8 @@ public:
 
     void* osMalloc(uint32_t size) override;
     void  osFree(void* ptr) override;
+    void  osRunProcess(OSInterfaceProcess process, void* arg) override;
+    void  osRunProcess(OSInterfaceProcess process, const char* processName, void* arg) override;
 };
 
 #endif // OSLINUXINTERFACE_H
