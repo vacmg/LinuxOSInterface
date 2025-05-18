@@ -248,3 +248,25 @@ TEST(LinuxOSInterface, semaphoreTestTimeout)
     EXPECT_FALSE(secondThreadLocked);
     delete semaphore;
 }
+
+void runProcessTest(void* arg)
+{
+    volatile bool* processRun = static_cast<bool*>(arg);
+    linuxOSInterface.osSleep(100);
+    *processRun = true;
+}
+
+TEST(LinuxOSInterface, runProcessTest)
+{
+    volatile bool processRun = false;
+    void* arg = (void*) (&processRun);
+
+    auto millis = linuxOSInterface.osMillis();
+    linuxOSInterface.osRunProcess(runProcessTest, arg);
+
+    while (!processRun && (millis + 1000 > linuxOSInterface.osMillis()))
+    {
+        linuxOSInterface.osSleep(10);
+    }
+    EXPECT_TRUE(processRun);
+}

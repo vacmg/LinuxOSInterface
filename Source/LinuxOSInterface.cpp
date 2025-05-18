@@ -3,6 +3,7 @@
 #include <ctime>
 #include <mutex>
 #include <semaphore>
+#include <thread>
 
 #define CONFIG_USE_BUSY_SLEEP 0
 
@@ -126,4 +127,16 @@ void* LinuxOSInterface::osMalloc(const uint32_t size)
 void LinuxOSInterface::osFree(void* ptr)
 {
     free(ptr);
+}
+
+void LinuxOSInterface::osRunProcess(OSInterfaceProcess process, void* arg)
+{
+    osRunProcess(process, "NewProcess", arg);
+}
+
+void LinuxOSInterface::osRunProcess(OSInterfaceProcess process, const char* processName, void* arg)
+{
+    OSInterfaceLogInfo("OSInterface", "Running process %s", processName);
+    std::thread t(process, arg);
+    t.detach();
 }
