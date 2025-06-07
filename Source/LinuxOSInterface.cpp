@@ -51,8 +51,8 @@ public:
 
     bool wait(uint32_t max_time_to_wait_ms) override
     {
-        const timespec ts = msToTimespec(max_time_to_wait_ms);
-        error_t res = pthread_mutex_timedlock(&mutex, &ts);
+        const timespec ts  = msToTimespec(max_time_to_wait_ms);
+        error_t        res = pthread_mutex_timedlock(&mutex, &ts);
         if (res != 0)
         {
             OSInterfaceLogError("LinuxOSInterface", "Failed to lock mutex: %s", strerror(res));
@@ -96,8 +96,8 @@ public:
 
     bool wait(uint32_t max_time_to_wait_ms) override
     {
-        const timespec ts = msToTimespec(max_time_to_wait_ms);
-        error_t res = sem_timedwait(&semaphore, &ts);
+        const timespec ts  = msToTimespec(max_time_to_wait_ms);
+        error_t        res = sem_timedwait(&semaphore, &ts);
         if (res == -1)
         {
             OSInterfaceLogError("LinuxOSInterface", "Failed to wait on semaphore: %s", strerror(errno));
