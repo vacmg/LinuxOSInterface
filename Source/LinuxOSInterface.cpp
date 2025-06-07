@@ -1,5 +1,6 @@
 #include "LinuxOSInterface.h"
 #include <cstdlib>
+#include <cstring>
 #include <ctime>
 #include <mutex>
 #include <semaphore>
@@ -41,8 +42,9 @@ public:
 
     void signal() override
     {
-        if (pthread_mutex_unlock(&mutex) != 0)
+        if (const error_t res = pthread_mutex_unlock(&mutex); res != 0)
         {
+            OSInterfaceLogError("LinuxOSInterface", "Failed to unlock mutex: %s", strerror(res));
             exit(EXIT_FAILURE);
         }
     }
@@ -50,7 +52,12 @@ public:
     bool wait(uint32_t max_time_to_wait_ms) override
     {
         const timespec ts = msToTimespec(max_time_to_wait_ms);
-        return pthread_mutex_timedlock(&mutex, &ts) == 0;
+        error_t res = pthread_mutex_timedlock(&mutex, &ts);
+        if (res != 0)
+        {
+            OSInterfaceLogError("LinuxOSInterface", "Failed to lock mutex: %s", strerror(res));
+        }
+        return res == 0;
     }
 
 private:
@@ -62,23 +69,40 @@ class linuxBinarySemaphore final : public OSInterface_BinarySemaphore
 public:
     linuxBinarySemaphore()
     {
-        sem_init(&semaphore, 0, 0);
+        if (sem_init(&semaphore, 0, 0) == -1)
+        {
+            OSInterfaceLogError("LinuxOSInterface", "Failed to initialize semaphore: %s", strerror(errno));
+            exit(errno);
+        }
     }
 
     ~linuxBinarySemaphore() override
     {
-        sem_destroy(&semaphore);
+        if (sem_destroy(&semaphore) == -1)
+        {
+            OSInterfaceLogError("LinuxOSInterface", "Failed to destroy semaphore: %s", strerror(errno));
+            exit(errno);
+        }
     }
 
     void signal() override
     {
-        sem_post(&semaphore);
+        if (sem_post(&semaphore) == -1)
+        {
+            OSInterfaceLogError("LinuxOSInterface", "Failed to signal semaphore: %s", strerror(errno));
+            exit(errno);
+        }
     }
 
     bool wait(uint32_t max_time_to_wait_ms) override
     {
         const timespec ts = msToTimespec(max_time_to_wait_ms);
-        return sem_timedwait(&semaphore, &ts) == 0;
+        error_t res = sem_timedwait(&semaphore, &ts);
+        if (res == -1)
+        {
+            OSInterfaceLogError("LinuxOSInterface", "Failed to wait on semaphore: %s", strerror(errno));
+        }
+        return res == 0;
     }
 
 private:
